@@ -16,10 +16,46 @@
 
 <script type="text/x-red" data-template-name="blinkstick">
     <div class="form-row">
+        <div class="form-row" id="node-input-row-payload">
+            <label for="node-input-serial">Serial</label>
+            <input type="text" id="node-input-serial" placeholder="defaults to first found">
+        </div>
+        <div class="form-row">
+            <label for="node-input-task"><i class="fa fa-empire"></i> Task</label>
+            <select id="node-input-task" style="width:125px !important">
+                <option value="set_color">Set Color</option>
+                <option value="blink">Blink</option>
+                <option value="morph">Morph</option>
+                <option value="pulse">Pulse</option>
+            </select>
+        </div>
+
+        <div id="delay-details" class="form-row">
+            <label for="node-input-delay"><i class="fa fa-clock-o"></i> Delay</label>
+            <input type="text" id="node-input-delay" placeholder="Delay" style="direction:rtl; width:50px !important">
+            milliseconds
+        </div>
+        <div id="repeats-details" class="form-row">
+            <label for="node-input-repeats"><i class="fa fa-history"></i> Repeats</label>
+            <input type="text" id="node-input-repeats" placeholder="Times" style="direction:rtl; width:50px !important">
+        </div>
+
+        <div id="duration-details" class="form-row">
+            <label for="node-input-duration"><i class="fa fa-clock-o"></i> Duration</label>
+            <input type="text" id="node-input-duration" placeholder="Duration" style="direction:rtl; width:50px !important">
+            milliseconds
+        </div>
+        <div id="steps-details" class="form-row">
+            <label for="node-input-steps"><i class="fa fa-history"></i> Steps</label>
+            <input type="text" id="node-input-steps" placeholder="Steps" style="direction:rtl; width:50px !important">
+        </div>
+
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-tips">Expects a msg.payload with either hex #rrggbb or decimal red,green,blue.</div>
+
+    </script>
 </script>
 
 <script type="text/x-red" data-help-name="blinkstick">
@@ -30,11 +66,41 @@
 </script>
 
 <script type="text/javascript">
+    function updateView(task) {
+        if (task == "set_color") {
+          $("#delay-details").hide();
+          $("#repeats-details").hide();
+          $("#duration-details").hide();
+          $("#steps-details").hide();
+        } else if (task == "blink") {
+          $("#delay-details").show();
+          $("#repeats-details").show();
+          $("#duration-details").hide();
+          $("#steps-details").hide();
+        } else if (task == "morph") {
+          $("#delay-details").hide();
+          $("#repeats-details").hide();
+          $("#duration-details").show();
+          $("#steps-details").show();
+        } else if (task == "pulse") {
+          $("#delay-details").hide();
+          $("#repeats-details").hide();
+          $("#duration-details").show();
+          $("#steps-details").show();
+        }
+    }
+
     RED.nodes.registerType('blinkstick',{
         category: 'output',
         color:"GoldenRod",
-        defaults: {
-            name: {value:""}
+        defaults: {             // defines the default editable properties of the node
+            name: {value:""},   //  along with default values.
+            task: {value:"set_color", required:true},
+            temp: {value:"set_color", required:true},
+            delay: {value:"500", required:true, validate:RED.validators.number()},
+            repeats: {value:"1", required:true, validate:RED.validators.number()},
+            duration: {value:"1000", required:true, validate:RED.validators.number()},
+            steps: {value:"50", required:true, validate:RED.validators.number()}
         },
         inputs:1,
         outputs:0,
@@ -45,6 +111,18 @@
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+          $( "#node-input-repeats" ).spinner({min:1,max:100});
+          $( "#node-input-delay" ).spinner({min:10,max:5000});
+          $( "#node-input-duration" ).spinner({min:10,max:5000});
+          $( "#node-input-steps" ).spinner({min:10,max:255});
+
+          $("#node-input-task").on("change",function() {
+              updateView(this.value);
+          });
+
+          updateView(this.task);
         }
     });
 </script>
