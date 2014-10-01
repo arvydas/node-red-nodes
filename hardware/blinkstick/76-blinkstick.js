@@ -47,6 +47,7 @@ module.exports = function(RED) {
         this.steps = n.steps;
         this.repeat = n.repeat;
         this.closing = false;
+        this.color = '';
 
         var p1 = /^\#[A-Fa-f0-9]{6}$/;
         var p2 = /[0-9]+,[0-9]+,[0-9]+/;
@@ -78,8 +79,8 @@ module.exports = function(RED) {
         var blinkstickAnimationComplete = function () {
             animationComplete = true;
 
-            if (node.repeat && canRepeat() && !node.closing) {
-              applyPayload();
+            if (!node.closing && node.color !== '') {
+                applyPayload();
             }
         };
 
@@ -95,16 +96,16 @@ module.exports = function(RED) {
             } else {
                 node.led.setColor(node.color, blinkstickAnimationComplete);
             }
+
+            //Clear color value until next one is received
+            if (!node.repeat) {
+                node.color = '';
+            }
         };
 
         findBlinkStick();
 
         this.on("input", function(msg) {
-            if (!animationComplete && !node.repeat) {
-                node.warn("BlinkStick is already running animation");
-                return;
-            }
-
             if (Object.size(node.led) !== 0) {
                 try {
                     if (p2.test(msg.payload)) {
@@ -115,6 +116,7 @@ module.exports = function(RED) {
                         node.color = msg.payload.toLowerCase().replace(/\s+/g,'');
                     }
 
+                    //Start color animation, otherwise the color is queued until animation completes
                     if (animationComplete) {
                         applyPayload();
                     }
