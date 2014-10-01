@@ -107,7 +107,8 @@ module.exports = function(RED) {
                 }
                 catch (err) {
                     node.warn("BlinkStick missing ? " + err);
-                    node.led = blinkstick.findFirst();
+                    //Look for a BlinkStick
+                    findBlinkStick();
                 }
             }
             else {
