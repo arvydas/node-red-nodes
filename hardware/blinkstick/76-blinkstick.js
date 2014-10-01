@@ -24,8 +24,27 @@ module.exports = function(RED) {
         return size;
     };
 
+    function decimalToHex(d, padding) {
+        var hex = Number(d).toString(16);
+        padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
+
+        while (hex.length < padding) {
+            hex = "0" + hex;
+        }
+
+        return hex;
+    }
+
     function BlinkStick(n) {
         RED.nodes.createNode(this,n);
+
+        this.name = n.name;
+        this.task = n.task;
+        this.delay = n.delay;
+        this.repeats = n.repeats;
+        this.duration = n.duration;
+        this.steps = n.steps;
+
         var p1 = /^\#[A-Fa-f0-9]{6}$/
         var p2 = /[0-9]+,[0-9]+,[0-9]+/
         this.led = blinkstick.findFirst(); // maybe try findAll() (one day)
@@ -34,16 +53,28 @@ module.exports = function(RED) {
         this.on("input", function(msg) {
             if (Object.size(node.led) !== 0) {
                 try {
+                    var color;
+
                     if (p2.test(msg.payload)) {
                         var rgb = msg.payload.split(",");
-                        node.led.setColor(parseInt(rgb[0])&255, parseInt(rgb[1])&255, parseInt(rgb[2])&255);
+                        color = "#" + decimalToHex(parseInt(rgb[0])&255) +
+                          decimalToHex(parseInt(rgb[1])&255) + decimalToHex(parseInt(rgb[2])&255);
+                    } else {
+                        color = msg.payload.toLowerCase().replace(/\s+/g,'');
                     }
-                    else {
-                        node.led.setColor(msg.payload.toLowerCase().replace(/\s+/g,''));
+
+                    if (this.task == "pulse") {
+                        node.led.pulse(color, {'duration': this.duration, 'steps': this.steps });
+                    } else if (this.task == "morph") {
+                        node.led.morph(color, {'duration': this.duration, 'steps': this.steps });
+                    } else if (this.task == "blink") {
+                        node.led.blink(color,{'repeats': this.repeats, 'delay': this.delay });
+                    } else {
+                        node.led.setColor(color);
                     }
                 }
                 catch (err) {
-                    node.warn("BlinkStick missing ?");
+                    node.warn("BlinkStick missing ? " + err);
                     node.led = blinkstick.findFirst();
                 }
             }
