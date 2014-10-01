@@ -49,6 +49,7 @@ module.exports = function(RED) {
         this.repeat = n.repeat;
         this.closing = false;
         this.color = '';
+        this.previousColor = '';
 
         var p1 = /[0-9]+,[0-9]+,[0-9]+/;
         var node = this;
@@ -81,17 +82,27 @@ module.exports = function(RED) {
         };
 
         //Event handler for all animation complete events
-        var blinkstickAnimationComplete = function () {
+        var blinkstickAnimationComplete = function (err) {
+            if (typeof(err) !== 'undefined') {
+                node.warn(err);
+            }
+
             animationComplete = true;
 
             //Apply queued color animation
             if (!node.closing && node.color !== '') {
-                applyColor();
+                //Apply new color only if there was no error or queued color is different from the previous color
+                if (typeof(err) === 'undefined' || typeof(err) !== 'undefined' && node.color != node.previousColor) {
+                    applyColor();
+                }
             }
         };
 
         var applyColor = function () {
             animationComplete = false;
+
+            //Store the value of color to check if it has changed
+            node.previousColor = node.color;
 
             //Select animation to perform
             if (node.task == "pulse") {
