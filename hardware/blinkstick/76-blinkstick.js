@@ -49,6 +49,7 @@ module.exports = function(RED) {
         var p1 = /^\#[A-Fa-f0-9]{6}$/;
         var p2 = /[0-9]+,[0-9]+,[0-9]+/;
         var node = this;
+        var animationComplete = true;
 
         var findBlinkStick = function () {
             if (typeof(node.serial) == 'string' && node.serial.replace(/\s+/g,'') !== '') {
@@ -68,9 +69,18 @@ module.exports = function(RED) {
             }
         };
 
+        var blinkstickAnimationComplete = function () {
+            animationComplete = true;
+        };
+
         findBlinkStick();
 
         this.on("input", function(msg) {
+            if (!animationComplete) {
+                node.warn("BlinkStick is already running animation");
+                return;
+            }
+
             if (Object.size(node.led) !== 0) {
                 try {
                     var color;
@@ -83,14 +93,16 @@ module.exports = function(RED) {
                         color = msg.payload.toLowerCase().replace(/\s+/g,'');
                     }
 
+                    animationComplete = false;
+
                     if (this.task == "pulse") {
-                        node.led.pulse(color, {'duration': this.duration, 'steps': this.steps });
+                        node.led.pulse(color, {'duration': this.duration, 'steps': this.steps }, blinkstickAnimationComplete);
                     } else if (this.task == "morph") {
-                        node.led.morph(color, {'duration': this.duration, 'steps': this.steps });
+                        node.led.morph(color, {'duration': this.duration, 'steps': this.steps }, blinkstickAnimationComplete);
                     } else if (this.task == "blink") {
-                        node.led.blink(color,{'repeats': this.repeats, 'delay': this.delay });
+                        node.led.blink(color,{'repeats': this.repeats, 'delay': this.delay }, blinkstickAnimationComplete);
                     } else {
-                        node.led.setColor(color);
+                        node.led.setColor(color, blinkstickAnimationComplete);
                     }
                 }
                 catch (err) {
