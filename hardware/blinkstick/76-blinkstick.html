@@ -95,6 +95,7 @@
         color:"GoldenRod",
         defaults: {             // defines the default editable properties of the node
             name: {value:""},   //  along with default values.
+            serial: {value:""},
             task: {value:"set_color", required:true},
             delay: {value:"500", required:true, validate:RED.validators.number()},
             repeats: {value:"1", required:true, validate:RED.validators.number()},

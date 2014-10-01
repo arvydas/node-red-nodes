@@ -39,16 +39,36 @@ module.exports = function(RED) {
         RED.nodes.createNode(this,n);
 
         this.name = n.name;
+        this.serial = n.serial;
         this.task = n.task;
         this.delay = n.delay;
         this.repeats = n.repeats;
         this.duration = n.duration;
         this.steps = n.steps;
 
-        var p1 = /^\#[A-Fa-f0-9]{6}$/
-        var p2 = /[0-9]+,[0-9]+,[0-9]+/
-        this.led = blinkstick.findFirst(); // maybe try findAll() (one day)
+        var p1 = /^\#[A-Fa-f0-9]{6}$/;
+        var p2 = /[0-9]+,[0-9]+,[0-9]+/;
         var node = this;
+
+        var findBlinkStick = function () {
+            if (typeof(node.serial) == 'string' && node.serial.replace(/\s+/g,'') !== '') {
+                blinkstick.findBySerial(node.serial, function (device) {
+                    node.led = device;
+
+                    if (Object.size(node.led) === 0) {
+                        node.error("BlinkStick with serial number " + node.serial + " not found");
+                    }
+                });
+            } else {
+                node.led = blinkstick.findFirst();
+
+                if (Object.size(node.led) === 0) {
+                    node.error("No BlinkStick found");
+                }
+            }
+        };
+
+        findBlinkStick();
 
         this.on("input", function(msg) {
             if (Object.size(node.led) !== 0) {
@@ -80,14 +100,10 @@ module.exports = function(RED) {
             }
             else {
                 //node.warn("No BlinkStick found");
-                node.led = blinkstick.findFirst();
+                findBlinkStick();
             }
         });
-        if (Object.size(node.led) === 0) {
-            node.error("No BlinkStick found");
-        }
-
     }
 
     RED.nodes.registerType("blinkstick",BlinkStick);
-}
+};
