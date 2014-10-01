@@ -58,16 +58,21 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
-    <div class="form-tips">Expects a msg.payload with either hex #rrggbb or decimal red,green,blue.</div>
+    <div class="form-tips">Expects a msg.payload with either hex "#rrggbb" or decimal "red,green,blue" string.</div>
 
     </script>
 </script>
 
 <script type="text/x-red" data-help-name="blinkstick">
-    <p>BlinkStick output node. Expects a <b>msg.payload</b> with either a hex string #rrggbb triple or red,green,blue as three 0-255 values.
-    It can also accept <i><a href="http://www.w3schools.com/html/html_colornames.asp" target="_new">standard HTML colour</a></i> names</p>
-    <p><b>NOTE:</b> currently only works with a single BlinkStick. (As it uses the findFirst() function to attach).</p>
-    <p>For more info see the <i><a href="http://blinkstick.com/" target="_new">BlinkStick website</a></i> or the <i><a href="https://github.com/arvydas/blinkstick-node" target="_new">node module</a></i> documentation.</p>
+    <p>BlinkStick output node. Expects a <b>msg.payload</b> with one of:</p>
+    <ul>
+        <li>A hex string <b>"#rrggbb"</b> triple</li>
+        <li><b>"red,green,blue"</b> three 0-255 values as a string</li>
+        <li><b>"random"</b> will generate a random color</li>
+        <li><i><a href="http://www.w3schools.com/html/html_colornames.asp" target="_new">standard HTML color</a></i> name</li>
+    </ul>
+    <p>For more info see <i><a href="http://www.blinkstick.com/help/tutorials" target="_new">BlinkStick tutorials</a></i> 
+        or the <i><a href="https://github.com/arvydas/blinkstick-node" target="_new">node module</a></i> documentation.</p>
 </script>
 
 <script type="text/javascript">
