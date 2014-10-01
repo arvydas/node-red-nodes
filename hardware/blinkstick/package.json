@@ -3,7 +3,7 @@
     "version"       : "0.0.3",
     "description"   : "A Node-RED node to control a Blinkstick",
     "dependencies"  : {
-        "blinkstick"   : "0.1.*"
+        "blinkstick"   : "1.0.*"
     },
     "repository" : {
         "type":"git",
