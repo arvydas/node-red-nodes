@@ -107,6 +107,8 @@ module.exports = function(RED) {
                 }
                 catch (err) {
                     node.warn("BlinkStick missing ? " + err);
+                    //Reset animation
+                    animationComplete = true;
                     //Look for a BlinkStick
                     findBlinkStick();
                 }
