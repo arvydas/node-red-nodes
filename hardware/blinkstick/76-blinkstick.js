@@ -45,6 +45,8 @@ module.exports = function(RED) {
         this.repeats = n.repeats;
         this.duration = n.duration;
         this.steps = n.steps;
+        this.repeat = n.repeat;
+        this.closing = false;
 
         var p1 = /^\#[A-Fa-f0-9]{6}$/;
         var p2 = /[0-9]+,[0-9]+,[0-9]+/;
@@ -69,43 +71,54 @@ module.exports = function(RED) {
             }
         };
 
+        var canRepeat = function () {
+            return node.task == "pulse" || node.task == "blink";
+        };
+
         var blinkstickAnimationComplete = function () {
             animationComplete = true;
+
+            if (node.repeat && canRepeat() && !node.closing) {
+              applyPayload();
+            }
+        };
+
+        var applyPayload = function () {
+            animationComplete = false;
+
+            if (node.task == "pulse") {
+                node.led.pulse(node.color, {'duration': node.duration, 'steps': node.steps }, blinkstickAnimationComplete);
+            } else if (node.task == "morph") {
+                node.led.morph(node.color, {'duration': node.duration, 'steps': node.steps }, blinkstickAnimationComplete);
+            } else if (node.task == "blink") {
+                node.led.blink(node.color,{'repeats': node.repeats, 'delay': node.delay }, blinkstickAnimationComplete);
+            } else {
+                node.led.setColor(node.color, blinkstickAnimationComplete);
+            }
         };
 
         findBlinkStick();
 
         this.on("input", function(msg) {
-            if (!animationComplete) {
+            if (!animationComplete && !node.repeat) {
                 node.warn("BlinkStick is already running animation");
                 return;
             }
 
             if (Object.size(node.led) !== 0) {
                 try {
-                    var color;
-
                     if (p2.test(msg.payload)) {
                         var rgb = msg.payload.split(",");
-                        color = "#" + decimalToHex(parseInt(rgb[0])&255) +
+                        node.color = "#" + decimalToHex(parseInt(rgb[0])&255) +
                           decimalToHex(parseInt(rgb[1])&255) + decimalToHex(parseInt(rgb[2])&255);
                     } else {
-                        color = msg.payload.toLowerCase().replace(/\s+/g,'');
+                        node.color = msg.payload.toLowerCase().replace(/\s+/g,'');
                     }
 
-                    animationComplete = false;
-
-                    if (this.task == "pulse") {
-                        node.led.pulse(color, {'duration': this.duration, 'steps': this.steps }, blinkstickAnimationComplete);
-                    } else if (this.task == "morph") {
-                        node.led.morph(color, {'duration': this.duration, 'steps': this.steps }, blinkstickAnimationComplete);
-                    } else if (this.task == "blink") {
-                        node.led.blink(color,{'repeats': this.repeats, 'delay': this.delay }, blinkstickAnimationComplete);
-                    } else {
-                        node.led.setColor(color, blinkstickAnimationComplete);
+                    if (animationComplete) {
+                        applyPayload();
                     }
-                }
-                catch (err) {
+                } catch (err) {
                     node.warn("BlinkStick missing ? " + err);
                     //Reset animation
                     animationComplete = true;
@@ -117,6 +130,10 @@ module.exports = function(RED) {
                 //node.warn("No BlinkStick found");
                 findBlinkStick();
             }
+        });
+
+        this.on("close", function() {
+            this.closing = true;
         });
     }
 

@@ -49,6 +49,11 @@
             <label for="node-input-steps"><i class="fa fa-history"></i> Steps</label>
             <input type="text" id="node-input-steps" placeholder="Steps" style="direction:rtl; width:50px !important">
         </div>
+        <div id="repeat-details" class="form-row">
+            <label>&nbsp;</label>
+            <input type="checkbox" id="node-input-repeat" style="display: inline-block; width: auto; vertical-align: top;">
+            <label for="node-input-repeat" style="width: 70%;">Repeat &infin; until next payload received?</label>
+        </div>
 
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -72,21 +77,25 @@
           $("#repeats-details").hide();
           $("#duration-details").hide();
           $("#steps-details").hide();
+          $("#repeat-details").hide();
         } else if (task == "blink") {
           $("#delay-details").show();
           $("#repeats-details").show();
           $("#duration-details").hide();
           $("#steps-details").hide();
+          $("#repeat-details").show();
         } else if (task == "morph") {
           $("#delay-details").hide();
           $("#repeats-details").hide();
           $("#duration-details").show();
           $("#steps-details").show();
+          $("#repeat-details").hide();
         } else if (task == "pulse") {
           $("#delay-details").hide();
           $("#repeats-details").hide();
           $("#duration-details").show();
           $("#steps-details").show();
+          $("#repeat-details").show();
         }
     }
 
@@ -100,7 +109,8 @@
             delay: {value:"500", required:true, validate:RED.validators.number()},
             repeats: {value:"1", required:true, validate:RED.validators.number()},
             duration: {value:"1000", required:true, validate:RED.validators.number()},
-            steps: {value:"50", required:true, validate:RED.validators.number()}
+            steps: {value:"50", required:true, validate:RED.validators.number()},
+            repeat: {value:false}
         },
         inputs:1,
         outputs:0,
