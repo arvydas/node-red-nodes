@@ -105,7 +105,7 @@ module.exports = function(RED) {
             }
 
             //Clear color value until next one is received, unless repeat option is set to true
-            if (!node.repeat) {
+            if (!node.repeat || !canRepeat()) {
                 node.color = '';
             }
         };
