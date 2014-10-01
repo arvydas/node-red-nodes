@@ -24,6 +24,7 @@ module.exports = function(RED) {
         return size;
     };
 
+    //Helper function to convert decimal number to hex with padding
     function decimalToHex(d, padding) {
         var hex = Number(d).toString(16);
         padding = typeof (padding) === "undefined" || padding === null ? padding = 2 : padding;
@@ -49,11 +50,13 @@ module.exports = function(RED) {
         this.closing = false;
         this.color = '';
 
-        var p1 = /^\#[A-Fa-f0-9]{6}$/;
-        var p2 = /[0-9]+,[0-9]+,[0-9]+/;
+        var p1 = /[0-9]+,[0-9]+,[0-9]+/;
         var node = this;
+        //Keeps track for active animations
         var animationComplete = true;
 
+        //Find BlinkStick based on serial number if supplied, otherwise look for first
+        //Blinkstick in the USB device list
         var findBlinkStick = function () {
             if (typeof(node.serial) == 'string' && node.serial.replace(/\s+/g,'') !== '') {
                 blinkstick.findBySerial(node.serial, function (device) {
@@ -72,21 +75,25 @@ module.exports = function(RED) {
             }
         };
 
+        //Check if repeat is enabled. Works only for pulse and blink tasks
         var canRepeat = function () {
             return node.task == "pulse" || node.task == "blink";
         };
 
+        //Event handler for all animation complete events
         var blinkstickAnimationComplete = function () {
             animationComplete = true;
 
+            //Apply queued color animation
             if (!node.closing && node.color !== '') {
-                applyPayload();
+                applyColor();
             }
         };
 
-        var applyPayload = function () {
+        var applyColor = function () {
             animationComplete = false;
 
+            //Select animation to perform
             if (node.task == "pulse") {
                 node.led.pulse(node.color, {'duration': node.duration, 'steps': node.steps }, blinkstickAnimationComplete);
             } else if (node.task == "morph") {
@@ -97,7 +104,7 @@ module.exports = function(RED) {
                 node.led.setColor(node.color, blinkstickAnimationComplete);
             }
 
-            //Clear color value until next one is received
+            //Clear color value until next one is received, unless repeat option is set to true
             if (!node.repeat) {
                 node.color = '';
             }
@@ -108,17 +115,21 @@ module.exports = function(RED) {
         this.on("input", function(msg) {
             if (Object.size(node.led) !== 0) {
                 try {
-                    if (p2.test(msg.payload)) {
+                    if (p1.test(msg.payload)) {
+                        //Color value is represented as "red,green,blue" string of bytes
                         var rgb = msg.payload.split(",");
+
+                        //Convert color value back to HEX string for easier implementation
                         node.color = "#" + decimalToHex(parseInt(rgb[0])&255) +
-                          decimalToHex(parseInt(rgb[1])&255) + decimalToHex(parseInt(rgb[2])&255);
+                            decimalToHex(parseInt(rgb[1])&255) + decimalToHex(parseInt(rgb[2])&255);
                     } else {
+                        //Sanitize color value
                         node.color = msg.payload.toLowerCase().replace(/\s+/g,'');
                     }
 
-                    //Start color animation, otherwise the color is queued until animation completes
+                    //Start color animation, otherwise the color is queued until current animation completes
                     if (animationComplete) {
-                        applyPayload();
+                        applyColor();
                     }
                 } catch (err) {
                     node.warn("BlinkStick missing ? " + err);
@@ -129,12 +140,12 @@ module.exports = function(RED) {
                 }
             }
             else {
-                //node.warn("No BlinkStick found");
                 findBlinkStick();
             }
         });
 
         this.on("close", function() {
+            //Set the flag to finish all animations
             this.closing = true;
         });
     }
