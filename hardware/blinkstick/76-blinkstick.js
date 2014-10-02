@@ -64,8 +64,10 @@ module.exports = function(RED) {
                     node.led = device;
 
                     if (Object.size(node.led) === 0) {
+                        node.status({fill:"red",shape:"ring",text:"disconnected"});
                         node.error("BlinkStick with serial number " + node.serial + " not found");
                     } else {
+                        node.status({fill:"green",shape:"dot",text:"connected"});
                         if (callback) callback();
                     }
                 });
@@ -73,8 +75,10 @@ module.exports = function(RED) {
                 node.led = blinkstick.findFirst();
 
                 if (Object.size(node.led) === 0) {
+                    node.status({fill:"red",shape:"ring",text:"disconnected"});
                     node.error("No BlinkStick found");
                 } else {
+                    node.status({fill:"green",shape:"dot",text:"connected"});
                     if (callback) callback();
                 }
             }
