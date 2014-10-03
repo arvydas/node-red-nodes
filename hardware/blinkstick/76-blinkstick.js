@@ -18,6 +18,8 @@ module.exports = function(RED) {
     "use strict";
     var blinkstick = require("blinkstick");
 
+    var availableTasks = ["set_color", "blink", "pulse", "morph"];
+
     Object.size = function(obj) {
         var size = 0;
         for (var key in obj) { if (obj.hasOwnProperty(key)) { size++; } }
@@ -34,6 +36,36 @@ module.exports = function(RED) {
         }
 
         return hex;
+    }
+
+    function validateInt(value, defaultValue) {
+        return typeof (value) === "undefined" || value === null ? value = defaultValue : parseInt(value);
+    }
+
+    function validate(value, defaultValue) {
+        return typeof (value) === "undefined" || value === null ? value = defaultValue : value;
+    }
+
+    function validatePayloadObject (obj) {
+        var
+            task = validate(obj.task),
+            delay = validateInt(obj.delay),
+            repeats = validateInt(obj.repeats),
+            duration = validateInt(obj.duration),
+            steps = validateInt(obj.steps),
+            repeat = validate(obj.repeat),
+            color = validate(obj.color);
+
+        if (typeof(task) !== 'undefined' && availableTasks.indexOf(task) === -1) {
+            return "Task is invalid";
+        }
+
+        if (typeof(color) === 'undefined') {
+            return "Color parameter is not set";
+        }
+
+        return { 'task': task, 'delay': delay, 'repeats': repeats, 'duration': duration, 'steps': steps,
+            'repeat': repeat, 'color': color };
     }
 
     function BlinkStick(n) {
@@ -151,7 +183,23 @@ module.exports = function(RED) {
         findBlinkStick();
 
         this.on("input", function(msg) {
-            if (p1.test(msg.payload)) {
+            if (typeof(msg.payload) === 'object' ) {
+                var data = validatePayloadObject(msg.payload);
+
+                if (typeof(data) === 'object') {
+                    node.task = data.task ? data.task : node.task;
+                    node.delay = data.delay ? data.delay : node.delay;
+                    node.repeats = data.repeats ? data.repeats : node.repeats;
+                    node.duration = data.duration ? data.duration : node.duration;
+                    node.steps = data.steps ? data.steps : node.steps;
+                    node.repeat = data.repeat ? data.repeat : node.repeat;
+                    node.color = data.color ? data.color : node.color;
+                } else {
+                    node.error(data);
+                    return;
+                }
+
+            } else if (p1.test(msg.payload)) {
                 //Color value is represented as "red,green,blue" string of bytes
                 var rgb = msg.payload.split(",");
 
