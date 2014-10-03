@@ -1,6 +1,6 @@
 {
     "name"          : "node-red-node-blinkstick",
-    "version"       : "0.0.3",
+    "version"       : "0.1.0",
     "description"   : "A Node-RED node to control a Blinkstick",
     "dependencies"  : {
         "blinkstick"   : "1.1.*"
@@ -20,5 +20,12 @@
         "name": "Dave Conway-Jones",
         "email": "ceejay@vnet.ibm.com",
         "url": "http://nodered.org"
-    }
+    },
+    "contributors": [
+        {
+            "name": "Arvydas Juskevicius",
+            "email": "arvydas@agileinnovative.co.uk",
+            "url": "http://www.blinkstick.com"
+        }
+    ]
 }
