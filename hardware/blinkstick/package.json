@@ -17,15 +17,15 @@
         }
     },
     "author": {
-        "name": "Dave Conway-Jones",
-        "email": "ceejay@vnet.ibm.com",
-        "url": "http://nodered.org"
+        "name": "Arvydas Juskevicius",
+        "email": "arvydas@agileinnovative.co.uk",
+        "url": "http://www.blinkstick.com"
     },
     "contributors": [
         {
-            "name": "Arvydas Juskevicius",
-            "email": "arvydas@agileinnovative.co.uk",
-            "url": "http://www.blinkstick.com"
+            "name": "Dave Conway-Jones",
+            "email": "ceejay@vnet.ibm.com",
+            "url": "http://nodered.org"
         }
     ]
 }
