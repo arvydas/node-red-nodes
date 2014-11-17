@@ -73,11 +73,11 @@ module.exports = function(RED) {
 
         this.name = n.name;
         this.serial = n.serial;
-        this.task = n.task;
-        this.delay = n.delay;
-        this.repeats = n.repeats;
-        this.duration = n.duration;
-        this.steps = n.steps;
+        this.task = n.task || "set_color";
+        this.delay = n.delay || 500;
+        this.repeats = n.repeats || 1;
+        this.duration = n.duration || 1000;
+        this.steps = n.steps || 50;
         this.repeat = n.repeat;
         this.closing = false;
         this.color = '';

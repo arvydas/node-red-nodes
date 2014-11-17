@@ -136,6 +136,26 @@
             return this.name?"node_label_italic":"";
         },
         oneditprepare: function() {
+          if (!$("#node-input-task").val()) {
+              $("#node-input-task").val("set_color");
+          }
+
+          if (!$("#node-input-delay").val()) {
+              $("#node-input-delay").val(500);
+          }
+
+          if (!$("#node-input-repeats").val()) {
+              $("#node-input-repeats").val(1);
+          }
+
+          if (!$("#node-input-duration").val()) {
+              $("#node-input-duration").val(1000);
+          }
+
+          if (!$("#node-input-steps").val()) {
+              $("#node-input-steps").val(50);
+          }
+
           $( "#node-input-repeats" ).spinner({min:1,max:100});
           $( "#node-input-delay" ).spinner({min:10,max:5000});
           $( "#node-input-duration" ).spinner({min:10,max:5000});
