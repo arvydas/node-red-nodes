@@ -119,11 +119,11 @@
         defaults: {             // defines the default editable properties of the node
             name: {value:""},   //  along with default values.
             serial: {value:""},
-            task: {value:"set_color", required:true},
-            delay: {value:"500", required:true, validate:RED.validators.number()},
-            repeats: {value:"1", required:true, validate:RED.validators.number()},
-            duration: {value:"1000", required:true, validate:RED.validators.number()},
-            steps: {value:"50", required:true, validate:RED.validators.number()},
+            task: {value:"set_color", validate:function(v) {return ((v === undefined)||v=="set_color"||v=="blink"||v=="morph"||v=="pulse"); }},
+            delay: {value:"500", validate:function(v) {return ((v === undefined)||(/^\d+$/).test(v)); }},
+            repeats: {value:"1", validate:function(v) {return ((v === undefined)||(/^\d+$/).test(v)); }},
+            duration: {value:"1000", validate:function(v) {return ((v === undefined)||(/^\d+$/).test(v)); }},
+            steps: {value:"50", validate:function(v) {return ((v === undefined)||(/^\d+$/).test(v)); }},
             repeat: {value:false}
         },
         inputs:1,
